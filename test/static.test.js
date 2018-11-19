@@ -10,9 +10,6 @@ import createMap from './utils/create_map';
 test('static', t => {
 
   const map = createMap();
-  spy(map, 'fire');
-  map.dragPan.disable();
-  spy(map.dragPan, 'disable');
 
   const opts = {
     modes: {
@@ -23,11 +20,15 @@ test('static', t => {
   const Draw = new MapboxDraw(opts);
   map.addControl(Draw);
 
+  spy(map, 'fire');
+  map.dragPan.disable();
+  spy(map.dragPan, 'disable');
+
   const afterNextRender = setupAfterNextRender(map);
 
   const cleanUp = function(cb) {
     Draw.deleteAll();
-    map.fire.reset();
+    map.fire.resetHistory();
     if (cb) cb();
   };
 
@@ -55,10 +56,10 @@ test('static', t => {
   t.test('static - box select', t => {
     Draw.add(getGeoJSON('negativePoint'));
     Draw.add(getGeoJSON('point'));
-    map.fire.reset();
+    map.fire.resetHistory();
 
     afterNextRender(() => {
-      map.dragPan.disable.reset();
+      map.dragPan.disable.resetHistory();
       map.fire('mousedown', makeMouseEvent(0, 0, { shiftKey: true }));
       t.equal(map.dragPan.disable.callCount, 0, 'dragPan is still enabled');
       map.fire('mousemove', makeMouseEvent(15, 15, { shiftKey: true }));
@@ -76,7 +77,7 @@ test('static', t => {
       type: 'FeatureCollection',
       features: features
     });
-    map.fire.reset();
+    map.fire.resetHistory();
 
     afterNextRender(() => {
       map.fire('mousedown', makeMouseEvent(10, 10));
